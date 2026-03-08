@@ -188,7 +188,7 @@ export default function App() {
     <>
       <style>{`
         * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { background: ${colors.bg}; }
+        body { background: ${colors.bg}; overflow-x: hidden; }
 
         input[type=range] {
           -webkit-appearance: none;

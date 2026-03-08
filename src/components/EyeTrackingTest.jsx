@@ -259,7 +259,7 @@ const st = {
     maxWidth: "100%",
     background: colors.card,
     borderRadius: 24,
-    padding: "56px 80px",
+    padding: "clamp(24px, 5vw, 56px) clamp(20px, 6vw, 80px)",
     textAlign: "center",
     display: "flex",
     flexDirection: "column",
