@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { colors, radius, MAX_W} from "../utils/theme";
+import { colors, radius, MAX_W } from "../utils/theme";
 
 const DOT_DURATION = 4000;
 const POSITIONS = [
@@ -27,7 +27,7 @@ export default function EyeTrackingTest({ onDone }) {
   const [errorMsg, setErrorMsg] = useState("");
   const [score, setScore] = useState(null);
 
-  const LEFT_IRIS  = [468, 469, 470, 471, 472];
+  const LEFT_IRIS = [468, 469, 470, 471, 472];
   const RIGHT_IRIS = [473, 474, 475, 476, 477];
 
   const getIrisCenter = (landmarks, indices) => {
@@ -36,6 +36,23 @@ export default function EyeTrackingTest({ onDone }) {
     return {
       x: pts.reduce((s, p) => s + p.x, 0) / pts.length,
       y: pts.reduce((s, p) => s + p.y, 0) / pts.length,
+    };
+  };
+
+  const getIrisCenterNormalized = (landmarks, irisIndices, innerCorner, outerCorner, topLid, bottomLid) => {
+    const raw = getIrisCenter(landmarks, irisIndices);
+    if (!raw) return null;
+    const inner = landmarks[innerCorner];
+    const outer = landmarks[outerCorner];
+    const top = landmarks[topLid];
+    const bot = landmarks[bottomLid];
+    if (!inner || !outer || !top || !bot) return raw;
+    const eyeWidth = Math.abs(outer.x - inner.x);
+    const eyeHeight = Math.abs(bot.y - top.y);
+    if (eyeWidth < 0.001 || eyeHeight < 0.001) return raw;
+    return {
+      x: (raw.x - inner.x) / eyeWidth,
+      y: (raw.y - top.y) / eyeHeight,
     };
   };
 
@@ -55,10 +72,14 @@ export default function EyeTrackingTest({ onDone }) {
       faceMesh.onResults((results) => {
         if (results.multiFaceLandmarks?.[0]) {
           const lm = results.multiFaceLandmarks[0];
-          const left  = getIrisCenter(lm, LEFT_IRIS);
-          const right = getIrisCenter(lm, RIGHT_IRIS);
+          const left = getIrisCenterNormalized(lm, LEFT_IRIS, 133, 33, 159, 145);
+          const right = getIrisCenterNormalized(lm, RIGHT_IRIS, 362, 263, 386, 374);
           if (left && right) {
-            trackingDataRef.current.push({ t: Date.now(), leftX: left.x, leftY: left.y, rightX: right.x, rightY: right.y });
+            trackingDataRef.current.push({
+              t: Date.now(),
+              leftX: left.x, leftY: left.y,
+              rightX: right.x, rightY: right.y,
+            });
           }
         }
       });
@@ -99,13 +120,13 @@ export default function EyeTrackingTest({ onDone }) {
     const leftXValues = data.map((d) => d.leftX);
     const leftYValues = data.map((d) => d.leftY);
     const totalRange = (Math.max(...leftXValues) - Math.min(...leftXValues))
-                     + (Math.max(...leftYValues) - Math.min(...leftYValues));
-    if (totalRange < 0.06) return { smoothness: 5, rawJitter: 0, sampleCount: data.length, label: "significant irregularity" };
+      + (Math.max(...leftYValues) - Math.min(...leftYValues));
+    if (totalRange < 0.3) return { smoothness: 5, rawJitter: 0, sampleCount: data.length, label: "significant irregularity" };
     const diffs = leftXValues.slice(1).map((v, i) => Math.abs(v - leftXValues[i]));
     const avgDiff = diffs.reduce((a, b) => a + b, 0) / diffs.length;
     const jitterScore = Math.max(0, Math.min(100, 100 - avgDiff * 5000));
-    const rangeScore  = Math.min(100, (totalRange / 0.15) * 100);
-    const smoothness  = Math.round(jitterScore * 0.7 + rangeScore * 0.3);
+    const rangeScore = Math.min(100, (totalRange / 2.0) * 100);
+    const smoothness = Math.round(jitterScore * 0.7 + rangeScore * 0.3);
     return {
       smoothness, rawJitter: avgDiff, sampleCount: data.length,
       label: smoothness > 70 ? "smooth" : smoothness > 45 ? "mild irregularity" : "significant irregularity",
@@ -121,14 +142,14 @@ export default function EyeTrackingTest({ onDone }) {
     return () => clearInterval(interval);
   }, [dotIndex, phase]);
 
-  const handleSkip   = () => { if (cameraRef.current) cameraRef.current.stop(); onDone({ eyeTracking: null, eyeSkipped: true }); };
+  const handleSkip = () => { if (cameraRef.current) cameraRef.current.stop(); onDone({ eyeTracking: null, eyeSkipped: true }); };
   const handleFinish = () => onDone({ eyeTracking: score });
   const dot = POSITIONS[dotIndex];
 
   const scoreColor = score
     ? score.smoothness > 70 ? colors.success
-    : score.smoothness > 45 ? colors.warning
-    : colors.danger
+      : score.smoothness > 45 ? colors.warning
+        : colors.danger
     : colors.textMuted;
 
   return (
@@ -246,10 +267,10 @@ const st = {
     gap: 22,
     border: `1px solid ${colors.border}`,
   },
-  cardIcon:  { fontSize: 56 },
+  cardIcon: { fontSize: 56 },
   cardTitle: { fontSize: 32, fontWeight: 800, margin: 0, color: colors.textPrimary },
-  cardBody:  { fontSize: 17, color: colors.textMuted, lineHeight: 1.75, margin: 0, maxWidth: 560 },
-  cardNote:  { fontSize: 13, color: colors.textFaint, margin: 0 },
+  cardBody: { fontSize: 17, color: colors.textMuted, lineHeight: 1.75, margin: 0, maxWidth: 560 },
+  cardNote: { fontSize: 13, color: colors.textFaint, margin: 0 },
 
   primaryBtn: {
     width: "100%",
@@ -342,6 +363,6 @@ const st = {
     alignItems: "center",
     justifyContent: "center",
   },
-  scoreNum:  { fontSize: 52, fontWeight: 900, lineHeight: 1 },
+  scoreNum: { fontSize: 52, fontWeight: 900, lineHeight: 1 },
   scoreUnit: { fontSize: 14, color: colors.textFaint },
 };
