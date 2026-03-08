@@ -348,18 +348,22 @@ export default function ReactionTest({ onDone }) {
 
         {/*Per-round chips*/}
         <div style={st.chipRow}>
-          {finalTimes.map((t, i) => (
-            <div key={i} style={st.chip}>
-              <span style={st.chipRound}>R{i + 1}</span>
-              <span style={{
-                ...st.chipTime,
-                color: t < 250 ? colors.primary : t < 350 ? colors.textPrimary : colors.warning,
-              }}>
-                {t}
-              </span>
-              <span style={st.chipUnit}>ms</span>
-            </div>
-          ))}
+          {allTimes.map((t, i) => {
+            const dropped = !finalTimes.includes(t) ||
+              (allTimes.filter(x => x === t).length > finalTimes.filter(x => x === t).length && i === allTimes.lastIndexOf(t));
+            return (
+              <div key={i} style={{ ...st.chip, opacity: dropped ? 0.4 : 1 }}>
+                <span style={st.chipRound}>{dropped ? "dropped" : `R${finalTimes.indexOf(t) + 1}`}</span>
+                <span style={{
+                  ...st.chipTime,
+                  color: t < 250 ? colors.primary : t < 350 ? colors.textPrimary : colors.warning,
+                }}>
+                  {t}
+                </span>
+                <span style={st.chipUnit}>ms</span>
+              </div>
+            );
+          })}
         </div>
 
         {/*Variability visualizer*/}
@@ -428,13 +432,13 @@ export default function ReactionTest({ onDone }) {
         {Array.from({ length: NUM_ROUNDS }).map((_, i) => (
           <div key={i} style={{
             ...st.pip,
-            background: i < finalTimes.length ? colors.primary : colors.trackBg,
+            background: i < allTimes.length ? colors.primary : colors.trackBg,
           }} />
         ))}
       </div>
 
       <p style={st.roundInfo}>
-        {finalTimes.length}/{NUM_ROUNDS} valid
+        {allTimes.length}/{NUM_ROUNDS} valid
         {falseStarts > 0 && (
           <span style={{ color: colors.danger, marginLeft: 10 }}>
             {falseStarts} false start{falseStarts !== 1 ? "s" : ""}
@@ -535,7 +539,7 @@ const st = {
     alignItems: "center",
     marginBottom: 24,
   },
-  logo:      { fontSize: 15, fontWeight: 600, letterSpacing: 1, color: colors.primary },
+  logo: { fontSize: 15, fontWeight: 600, letterSpacing: 1, color: colors.primary },
   stepLabel: { fontSize: 13, color: colors.textFaint, letterSpacing: 1 },
 
   card: {
@@ -551,18 +555,18 @@ const st = {
     border: `1px solid ${colors.border}`,
   },
   cardIcon: { fontSize: 48, textAlign: "center", margin: 0 },
-  cardH2:   { fontSize: 32, fontWeight: 800, margin: 0, textAlign: "center" },
+  cardH2: { fontSize: 32, fontWeight: 800, margin: 0, textAlign: "center" },
   cardBody: { fontSize: 16, color: colors.textMuted, lineHeight: 1.75, margin: 0 },
-  note:     {
+  note: {
     fontSize: 13, color: colors.textFaint,
     background: colors.bg, borderRadius: 8,
     padding: "10px 14px", margin: 0,
   },
   divider: { height: 1, background: colors.border },
 
-  toggleRow:   { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 },
+  toggleRow: { display: "flex", justifyContent: "space-between", alignItems: "center", gap: 16 },
   toggleLabel: { fontSize: 15, color: colors.textPrimary, display: "block" },
-  toggleSub:   { fontSize: 12, color: colors.textFaint, display: "block", marginTop: 4 },
+  toggleSub: { fontSize: 12, color: colors.textFaint, display: "block", marginTop: 4 },
   toggleBtn: {
     width: 46, height: 26, borderRadius: 13,
     border: "none", cursor: "pointer",
@@ -575,8 +579,8 @@ const st = {
     background: "#fff", transition: "transform 0.2s",
   },
 
-  pips:      { display: "flex", gap: 10, marginBottom: 10 },
-  pip:       { width: 52, height: 7, borderRadius: 4, transition: "background 0.3s" },
+  pips: { display: "flex", gap: 10, marginBottom: 10 },
+  pip: { width: 52, height: 7, borderRadius: 4, transition: "background 0.3s" },
   roundInfo: { fontSize: 14, color: colors.textFaint, marginBottom: 20 },
 
   arena: {
@@ -592,12 +596,12 @@ const st = {
     transition: "background 0.12s ease",
   },
   arenaInner: { textAlign: "center", padding: "0 24px" },
-  arenaTop:   { fontSize: 80, fontWeight: 900, margin: 0, letterSpacing: -3 },
-  arenaSub:   { fontSize: 18, color: "rgba(255,255,255,0.5)", marginTop: 14, lineHeight: 1.6 },
-  hint:       { fontSize: 14, color: colors.textFaint, marginTop: 16, textAlign: "center" },
+  arenaTop: { fontSize: 80, fontWeight: 900, margin: 0, letterSpacing: -3 },
+  arenaSub: { fontSize: 18, color: "rgba(255,255,255,0.5)", marginTop: 14, lineHeight: 1.6 },
+  hint: { fontSize: 14, color: colors.textFaint, marginTop: 16, textAlign: "center" },
 
   resultsH2: { fontSize: 32, fontWeight: 800, marginBottom: 24 },
-  statRow:   { display: "flex", gap: 16, width: "100%", maxWidth: "100%", marginBottom: 20 },
+  statRow: { display: "flex", gap: 16, width: "100%", maxWidth: "100%", marginBottom: 20 },
   statCard: {
     flex: 1,
     background: colors.card,
@@ -609,9 +613,9 @@ const st = {
     gap: 4,
     border: `1px solid ${colors.border}`,
   },
-  statVal:  { fontSize: 42, fontWeight: 900 },
+  statVal: { fontSize: 42, fontWeight: 900 },
   statUnit: { fontSize: 11, color: colors.textFaint },
-  statSub:  { fontSize: 11, fontWeight: 600, marginTop: 6 },
+  statSub: { fontSize: 11, fontWeight: 600, marginTop: 6 },
 
   baselineBox: {
     width: "100%",
@@ -625,8 +629,8 @@ const st = {
     alignItems: "flex-start",
   },
   baselineArrow: { fontSize: 22, paddingTop: 2 },
-  baselineMain:  { fontSize: 16, fontWeight: 700, margin: "0 0 4px" },
-  baselineSub:   { fontSize: 13, color: colors.textFaint, margin: 0 },
+  baselineMain: { fontSize: 16, fontWeight: 700, margin: "0 0 4px" },
+  baselineSub: { fontSize: 13, color: colors.textFaint, margin: 0 },
 
   chipRow: {
     display: "flex",
@@ -648,8 +652,8 @@ const st = {
     border: `1px solid ${colors.border}`,
   },
   chipRound: { fontSize: 11, color: colors.textFaint, marginBottom: 4 },
-  chipTime:  { fontSize: 28, fontWeight: 800 },
-  chipUnit:  { fontSize: 11, color: colors.textFaint },
+  chipTime: { fontSize: 28, fontWeight: 800 },
+  chipUnit: { fontSize: 11, color: colors.textFaint },
 
   varBox: {
     width: "100%",
@@ -660,7 +664,7 @@ const st = {
     marginBottom: 20,
     border: `1px solid ${colors.border}`,
   },
-  varTitle:  { fontSize: 10, letterSpacing: 3, color: colors.textFaint, margin: "0 0 20px", textTransform: "uppercase" },
+  varTitle: { fontSize: 10, letterSpacing: 3, color: colors.textFaint, margin: "0 0 20px", textTransform: "uppercase" },
   varTrack: {
     height: 4, background: colors.trackBg,
     borderRadius: 2, position: "relative", marginBottom: 12,
