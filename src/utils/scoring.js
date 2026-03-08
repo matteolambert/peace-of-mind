@@ -48,7 +48,23 @@ export function calculateRisk(results) {
   } else if (results.eyeSkipped) {
     details.eyes = "skipped";
   }
-
+  // Memory check
+  if (results.memory?.delayedWordScore != null) {
+    const score = results.memory.delayedWordScore;
+    if (score <= 3) {
+      flags.push("poor delayed memory recall");
+      riskPoints += 2;
+      details.memory = "poor";
+    }
+    else if (score === 4) {
+      flags.push("mild memory recall difficulty");
+      riskPoints += 1;
+      details.memory = "moderate";
+    }
+    else {
+      details.memory = "good";
+    }
+  }
   // Concussion Symptoms
   if (results.symptoms) {
     const concussionKeys = ["headache", "nausea", "confusion", "lightSensitivity", "memory", "balance"];
