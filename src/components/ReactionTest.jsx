@@ -243,7 +243,7 @@ export default function ReactionTest({ onDone }) {
           <p style={st.cardIcon}>⚡</p>
           <h2 style={st.cardH2}>Reaction Test</h2>
           <p style={st.cardBody}>
-            Tap the moment the screen turns green{useAudio ? " and you hear a beep" : ""}.
+            Tap the moment the screen turns blue{useAudio ? " and you hear a beep" : ""}.
             Wait for the signal — tapping early flags as a false start and{" "}
             <em>does</em> get recorded. You'll do {NUM_ROUNDS} valid rounds.
           </p>
@@ -462,7 +462,7 @@ export default function ReactionTest({ onDone }) {
 
       {phase === PHASES.WAITING && (
         <p style={st.hint}>
-          Tap the instant it turns green
+          Tap the instant it turns blue
           {useAudio ? " — listen for the beep" : ""}
         </p>
       )}

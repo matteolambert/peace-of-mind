@@ -200,7 +200,7 @@ export default function EyeTrackingTest({ onDone }) {
             <strong style={{ color: scoreColor }}>{score.label}</strong>
           </p>
           <p style={st.cardNote}>{score.sampleCount} frames analyzed</p>
-          <button onClick={handleFinish} style={st.primaryBtn}>See Results →</button>
+          <button onClick={handleFinish} style={st.primaryBtn}>Continue→</button>
         </div>
       )}
     </div>
