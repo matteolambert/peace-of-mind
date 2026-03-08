@@ -1,7 +1,7 @@
 export const colors = {
   bg:          "#111827",
   card:        "#1e2536",
-  border:      "rgba(255,255,255,0.06)",
+  border:      "#475569",
   primary:     "#5b8dee",
   success:     "#86efac",
   warning:     "#fcd34d",

@@ -46,8 +46,8 @@ function SymptomRow({ s, value, onChange }) {
               value >= 7
                 ? colors.danger
                 : value >= 4
-                ? colors.warning
-                : colors.success,
+                  ? colors.warning
+                  : colors.success,
           }}
         >
           {value}
@@ -345,16 +345,19 @@ const styles = {
     letterSpacing: 3,
     color: colors.textFaint,
     textTransform: "uppercase",
-    marginTop: 28,
-    marginBottom: 10,
+    marginTop: 24,
+    marginBottom: 8,
   },
 
   symptomRow: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    padding: "16px 0",
-    borderBottom: `1px solid ${colors.border}`,
+    padding: "16px",
+    border: `1px solid ${colors.border}`,
+    borderRadius: radius.sm,
+    marginBottom: 8,
+    background: colors.card,
   },
 
   symptomLeft: {
